@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroMentor - Mentorship for Everyone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .tagline {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button.secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        button.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-option {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .role-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .role-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .nav-item {
+            color: #666;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            color: #667eea;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .question-card, .answer-card {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-text {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .question-meta {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .answer-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .answer-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .user-info {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .user-email {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen active">
+            <h1>MicroMentor</h1>
+            <p class="tagline">Mentorship for the rest of us</p>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+            
+            <button onclick="login()">Sign In</button>
+            <button class="secondary" onclick="showScreen('signupScreen')">Create Account</button>
+        </div>
+
+        <!-- Signup Screen -->
+        <div id="signupScreen" class="screen">
+            <h1>Join MicroMentor</h1>
+            <p class="tagline">Your growth journey starts here</p>
+            
+            <div class="form-group">
+                <label>I want to be a:</label>
+                <div class="role-selector">
+                    <div class="role-option" onclick="selectRole('mentee', this)">
+                        <div>🌱</div>
+                        <div>Mentee</div>
+                        <small>Get guidance</small>
+                    </div>
+                    <div class="role-option" onclick="selectRole('mentor', this)">
+                        <div>🌟</div>
+                        <div>Mentor</div>
+                        <small>Give back</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="signupEmail" placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a password">
+            </div>
+            
+            <button onclick="signup()">Create Account</button>
+            <button class="secondary" onclick="showScreen('loginScreen')">Back to Login</button>
+        </div>
+
+        <!-- Mentee Dashboard -->
+        <div id="menteeDashboard" class="screen">
+            <div class="user-info">
+                <div>Welcome back!</div>
+                <div class="user-email" id="menteeEmail">user@email.com</div>
+                <button class="secondary" style="margin-top: 10px; width: auto; padding: 5px 15px;" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="nav-bar">
+                <div class="nav-item active" onclick="switchTab('ask', this)">Ask</div>
+                <div class="nav-item" onclick="switchTab('myQuestions', this)">My Questions</div>
+                <div class="nav-item" onclick="switchTab('library', this)">Library</div>
+            </div>
+
+            <!-- Ask Tab -->
+            <div id="askTab" class="tab-content">
+                <h2>What's on your mind?</h2>
+                <div class="form-group">
+                    <textarea id="questionInput" rows="4" placeholder="What's one thing you're stuck on? Be specific..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="questionCategory">
+                        <option value="career">Career Growth</option>
+                        <option value="confidence">Confidence</option>
+                        <option value="leadership">Leadership</option>
+                        <option value="technical">Technical Skills</option>
+                        <option value="personal">Personal Development</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="makePublic"> Make this public (help others learn too)
+                    </label>
+                </div>
+                
+                <button onclick="submitQuestion()">Submit Question</button>
+            </div>
+
+            <!-- My Questions Tab -->
+            <div id="myQuestionsTab" class="tab-content" style="display: none;">
+                <h2>Your Questions</h2>
+                <div id="myQuestionsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💭</div>
+                        <p>No questions yet. Ask your first one!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Library Tab -->
+            <div id="libraryTab" class="tab-content" style="display: none;">
+                <h2>Your Wisdom Library</h2>
+                <div id="libraryList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <p>Your saved insights will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mentor Dashboard -->
+        <div id="mentorDashboard" class="screen">
+            <div class="user-info">
+                <div>Welcome, Mentor!</div>
+                <div class="user-email" id="mentorEmail">mentor@email.com</div>
+                <button class="secondary" style="margin-top: 10px; width: auto; padding: 5px 15px;" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="questionsAnswered">0</div>
+                    <div class="stat-label">Questions Answered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="menteesHelped">0</div>
+                    <div class="stat-label">Mentees Helped</div>
+                </div>
+            </div>
+
+            <h2>Questions for You</h2>
+            <div id="pendingQuestions">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📬</div>
+                    <p>No pending questions right now</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Modal -->
+        <div id="answerModal" class="modal">
+            <div class="modal-content">
+                <h2>Share Your Wisdom</h2>
+                <div class="question-card">
+                    <div id="modalQuestionText" class="question-text"></div>
+                    <div id="modalQuestionMeta" class="question-meta"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Your Answer</label>
+                    <textarea id="answerInput" rows="6" placeholder="Share your experience, insights, or advice..."></textarea>
+                </div>
+                
+                <button onclick="submitAnswer()">Send Answer</button>
+                <button class="secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Initialize Firebase (replace with your config)
+        const firebaseConfig = {
+            apiKey: "YOUR-API-KEY",
+            authDomain: "YOUR-AUTH-DOMAIN",
+            projectId: "YOUR-PROJECT-ID",
+            storageBucket: "YOUR-STORAGE-BUCKET",
+            messagingSenderId: "YOUR-SENDER-ID",
+            appId: "YOUR-APP-ID"
+        };
+
+        // Initialize Firebase only after the page loads
+        let auth, db;
+        let currentUser = null;
+        let selectedRole = 'mentee';
+        let currentQuestionId = null;
+
+        // Initialize Firebase when the page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+
+            // Listen for auth state changes
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    // Get user data from Firestore
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData.role === 'mentor') {
+                            document.getElementById('mentorEmail').textContent = user.email;
+                            showScreen('mentorDashboard');
+                            loadPendingQuestions();
+                            loadMentorStats();
+                        } else {
+                            document.getElementById('menteeEmail').textContent = user.email;
+                            showScreen('menteeDashboard');
+                            loadMyQuestions();
+                            loadLibrary();
+                        }
+                    }
+                } else {
+                    currentUser = null;
+                    showScreen('loginScreen');
+                }
+            });
+        });
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function selectRole(role, element) {
+            selectedRole = role;
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        async function signup() {
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Save user role to Firestore
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    email: email,
+                    role: selectedRole,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    questionsAsked: 0,
+                    questionsAnswered: 0
+                });
+
+                if (selectedRole === 'mentor') {
+                    showScreen('mentorDashboard');
+                } else {
+                    showScreen('menteeDashboard');
+                }
+            } catch (error) {
+                alert('Signup failed: ' + error.message);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                showScreen('loginScreen');
+            } catch (error) {
+                alert('Logout failed: ' + error.message);
+            }
+        }
+
+        function switchTab(tabName, element) {
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            // Show/hide tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.getElementById(tabName + 'Tab').style.display = 'block';
+
+            // Load data for the tab
+            if (tabName === 'myQuestions') {
+                loadMyQuestions();
+            } else if (tabName === 'library') {
+                loadLibrary();
+            }
+        }
+
+        async function submitQuestion() {
+            const questionText = document.getElementById('questionInput').value;
+            const category = document.getElementById('questionCategory').value;
+            const isPublic = document.getElementById('makePublic').checked;
+
+            if (!questionText.trim()) {
+                alert('Please enter a question');
+                return;
+            }
+
+            try {
+                await db.collection('questions').add({
+                    text: questionText,
+                    category: category,
+                    isPublic: isPublic,
+                    menteeId: currentUser.uid,
+                    menteeEmail: currentUser.email,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Clear the form
+                document.getElementById('questionInput').value = '';
+                document.getElementById('makePublic').checked = false;
+                
+                alert('Question submitted! A mentor will respond soon.');
+                loadMyQuestions();
+            } catch (error) {
+                alert('Failed to submit question: ' + error.message);
+            }
+        }
+
+        async function loadMyQuestions() {
+            if (!currentUser) return;
+
+            try {
+                const snapshot = await db.collection('questions')
+                    .where('menteeId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                const listContainer = document.getElementById('myQuestionsList');
+                
+                if (snapshot.empty) {
+                    listContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💭</div>
+                            <p>No questions yet. Ask your first one!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listContainer.innerHTML = '';
+                
+                for (const doc of snapshot.docs) {
+                    const question = doc.data();
+                    const answerSnapshot = await db.collection('answers')
+                        .where('questionId', '==', doc.id)
+                        .get();
+                    
+                    const hasAnswer = !answerSnapshot.empty;
+                    const answer = hasAnswer ? answerSnapshot.docs[0].data() : null;
+                    
+                    const questionCard = document.createElement('div');
+                    questionCard.className = 'question-card';
+                    questionCard.innerHTML = `
+                        <div class="question-text">${question.text}</div>
+                        <div class="question-meta">
+                            ${question.category} • ${question.createdAt ? new Date(question.createdAt.toDate()).toLocaleDateString() : 'Just now'}
+                            ${hasAnswer ? '• ✅ Answered' : '• ⏳ Pending'}
+                        </div>
+                        ${hasAnswer ? `
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                                <strong>Answer:</strong> ${answer.text}
+                                <div style="margin-top: 5px; color: #999; font-size: 12px;">
+                                    From mentor • ${new Date(answer.createdAt.toDate()).toLocaleDateString()}
+                                </div>
+                            </div>
+                        ` : ''}
+                    `;
+                    listContainer.appendChild(questionCard);
+                }
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        }
+
+        async function loadLibrary() {
+            if (!currentUser) return;
+
+            try {
+                // Get all answered questions for this mentee
+                const questionsSnapshot = await db.collection('questions')
+                    .where('menteeId', '==', currentUser.uid)
+                    .get();
+
+                const libraryContainer = document.getElementById('libraryList');
+                let hasAnswers = false;
+                libraryContainer.innerHTML = '';
+
+                for (const questionDoc of questionsSnapshot.docs) {
+                    const answersSnapshot = await db.collection('answers')
+                        .where('questionId', '==', questionDoc.id)
+                        .get();
+
+                    if (!answersSnapshot.empty) {
+                        hasAnswers = true;
+                        const question = questionDoc.data();
+                        const answer = answersSnapshot.docs[0].data();
+
+                        const card = document.createElement('div');
+                        card.className = 'answer-card';
+                        card.innerHTML = `
+                            <div style="font-weight: 600; margin-bottom: 10px;">Q: ${question.text}</div>
+                            <div style="margin-bottom: 10px;">A: ${answer.text}</div>
+                            <div class="question-meta">
+                                ${question.category} • Answered ${answer.createdAt ? new Date(answer.createdAt.toDate()).toLocaleDateString() : 'recently'}
+                            </div>
+                        `;
+                        libraryContainer.appendChild(card);
+                    }
+                }
+
+                if (!hasAnswers) {
+                    libraryContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📚</div>
+                            <p>Your saved insights will appear here</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading library:', error);
+            }
+        }
+
+        async function loadPendingQuestions() {
+            if (!currentUser) return;
+
+            try {
+                const snapshot = await db.collection('questions')
+                    .where('status', '==', 'pending')
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+
+                const container = document.getElementById('pendingQuestions');
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📬</div>
+                            <p>No pending questions right now</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const question = doc.data();
+                    const questionCard = document.createElement('div');
+                    questionCard.className = 'question-card';
+                    questionCard.innerHTML = `
+                        <div class="question-text">${question.text}</div>
+                        <div class="question-meta">
+                            ${question.category} • ${question.createdAt ? new Date(question.createdAt.toDate()).toLocaleDateString() : 'Just now'}
+                        </div>
+                        <div class="answer-actions">
+                            <button onclick="openAnswerModal('${doc.id}', '${question.text.replace(/'/g, "\\'")}', '${question.category}')">Answer</button>
+                            <button class="secondary" onclick="skipQuestion('${doc.id}')">Skip</button>
+                        </div>
+                    `;
+                    container.appendChild(questionCard);
+                });
+            } catch (error) {
+                console.error('Error loading pending questions:', error);
+            }
+        }
+
+        async function loadMentorStats() {
+            if (!currentUser) return;
+
+            try {
+                const answersSnapshot = await db.collection('answers')
+                    .where('mentorId', '==', currentUser.uid)
+                    .get();
+
+                document.getElementById('questionsAnswered').textContent = answersSnapshot.size;
+
+                // Count unique mentees helped
+                const uniqueMentees = new Set();
+                for (const doc of answersSnapshot.docs) {
+                    const answer = doc.data();
+                    const questionDoc = await db.collection('questions').doc(answer.questionId).get();
+                    if (questionDoc.exists) {
+                        uniqueMentees.add(questionDoc.data().menteeId);
+                    }
+                }
+                
+                document.getElementById('menteesHelped').textContent = uniqueMentees.size;
+            } catch (error) {
+                console.error('Error loading mentor stats:', error);
+            }
+        }
+
+        function openAnswerModal(questionId, questionText, category) {
+            currentQuestionId = questionId;
+            document.getElementById('modalQuestionText').textContent = questionText;
+            document.getElementById('modalQuestionMeta').textContent = category;
+            document.getElementById('answerModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('answerModal').classList.remove('active');
+            document.getElementById('answerInput').value = '';
+            currentQuestionId = null;
+        }
+
+        async function submitAnswer() {
+            const answerText = document.getElementById('answerInput').value;
+
+            if (!answerText.trim()) {
+                alert('Please provide an answer');
+                return;
+            }
+
+            try {
+                // Save the answer
+                await db.collection('answers').add({
+                    questionId: currentQuestionId,
+                    mentorId: currentUser.uid,
+                    mentorEmail: currentUser.email,
+                    text: answerText,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update question status
+                await db.collection('questions').doc(currentQuestionId).update({
+                    status: 'answered',
+                    answeredAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('Answer submitted successfully!');
+                closeModal();
+                loadPendingQuestions();
+                loadMentorStats();
+            } catch (error) {
+                alert('Failed to submit answer: ' + error.message);
+            }
+        }
+
+        async function skipQuestion(questionId) {
+            // In a real app, you might track skips or implement a more sophisticated routing system
+            // For now, we'll just refresh the list
+            loadPendingQuestions();
+        }
+    </script>
+</body>
+</html>
