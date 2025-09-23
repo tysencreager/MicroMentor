@@ -9,8 +9,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { MessageSquare, Mic, MicOff, Send, BookOpen, TrendingUp, Clock, CheckCircle, Star, Heart, Users } from "lucide-react";
+import { MessageSquare, Mic, MicOff, Send, BookOpen, TrendingUp, Clock, CheckCircle, Star, Heart, Users, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import femaleMentorAvatar from "@assets/generated_images/female_mentor_avatar_portrait_bc221e33.png";
 import maleMentorAvatar from "@assets/generated_images/male_mentor_avatar_portrait_a3d54ed8.png";
 
@@ -93,6 +95,42 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
   const [activeTab, setActiveTab] = useState("ask");
   const { toast } = useToast();
 
+  // Fetch user's questions
+  const { data: questions = [], isLoading: isLoadingQuestions } = useQuery<any[]>({
+    queryKey: ["/api/questions/mentee"],
+  });
+
+  // Fetch suggested mentors
+  const { data: suggestedMentors = [] } = useQuery<any[]>({
+    queryKey: ["/api/mentors/active"],
+  });
+
+  // Submit question mutation
+  const submitQuestionMutation = useMutation({
+    mutationFn: async (questionData: { text: string; category: string; isPublic: boolean }) => {
+      const response = await apiRequest("POST", "/api/questions", questionData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Question submitted!",
+        description: "We're matching you with the perfect mentor. You'll get notified when they respond."
+      });
+      setQuestion("");
+      setCategory("");
+      setIsPublic(false);
+      // Invalidate questions to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["/api/questions/mentee"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error submitting question",
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
   const handleSubmitQuestion = () => {
     if (!question.trim()) {
       toast({
@@ -103,15 +141,20 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
       return;
     }
 
-    // TODO: Remove mock functionality - submit to backend
-    console.log('Submitting question:', { question, category, isPublic });
-    toast({
-      title: "Question submitted!",
-      description: "We're matching you with the perfect mentor. You'll get notified when they respond."
+    if (!category) {
+      toast({
+        title: "Category required",
+        description: "Please select a category for your question.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    submitQuestionMutation.mutate({
+      text: question,
+      category,
+      isPublic
     });
-    setQuestion("");
-    setCategory("");
-    setIsPublic(false);
   };
 
   const handleVoiceToggle = () => {
@@ -281,10 +324,15 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
                   onClick={handleSubmitQuestion} 
                   className="w-full" 
                   size="lg"
+                  disabled={submitQuestionMutation.isPending}
                   data-testid="button-submit-question"
                 >
-                  <Send className="w-4 h-4 mr-2" />
-                  Submit Question
+                  {submitQuestionMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  {submitQuestionMutation.isPending ? "Submitting..." : "Submit Question"}
                 </Button>
               </CardContent>
             </Card>
@@ -301,7 +349,7 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {mockSuggestedMentors.map((mentor) => (
+                {suggestedMentors.map((mentor: any) => (
                   <Card key={mentor.id} className="hover-elevate cursor-pointer">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
@@ -327,7 +375,7 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
                           </div>
                           <p className="text-sm text-muted-foreground mt-2">{mentor.bio}</p>
                           <div className="flex flex-wrap gap-1 mt-3">
-                            {mentor.expertise.map((skill) => (
+                            {(mentor.expertise || []).map((skill: string) => (
                               <Badge key={skill} variant="secondary" className="text-xs">
                                 {skill}
                               </Badge>
@@ -344,7 +392,32 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
 
           {/* My Questions Tab */}
           <TabsContent value="questions" className="space-y-4">
-            {mockQuestions.map((q) => (
+            {isLoadingQuestions ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+                  <p className="text-muted-foreground">Loading your questions...</p>
+                </CardContent>
+              </Card>
+            ) : questions.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center space-y-4">
+                  <MessageSquare className="w-16 h-16 mx-auto text-muted-foreground/50" />
+                  <h3 className="font-medium">No questions yet</h3>
+                  <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                    Ask your first question to get started on your mentorship journey.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setActiveTab("ask")}
+                    data-testid="button-ask-first-question-from-empty"
+                  >
+                    Ask Your First Question
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              questions.map((q: any) => (
               <Card key={q.id} className="hover-elevate">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
@@ -382,27 +455,35 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
                     <div className="border-t pt-4 space-y-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8">
-                          <AvatarImage src={q.mentor.avatar} />
-                          <AvatarFallback>{q.mentor.name[0]}</AvatarFallback>
+                          <AvatarImage src={q.mentor?.user?.profileImageUrl || q.mentor?.avatar} />
+                          <AvatarFallback>
+                            {(q.mentor?.user?.firstName?.[0] || q.mentor?.name?.[0] || 'M').toUpperCase()}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-sm">{q.mentor.name}</p>
-                          <p className="text-xs text-muted-foreground">{q.mentor.title}</p>
+                          <p className="font-medium text-sm">
+                            {q.mentor?.user?.firstName && q.mentor?.user?.lastName 
+                              ? `${q.mentor.user.firstName} ${q.mentor.user.lastName}` 
+                              : q.mentor?.name || 'Anonymous Mentor'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {q.mentor?.title || 'Mentor'}
+                          </p>
                         </div>
                       </div>
                       
                       <p className="text-sm bg-muted/50 p-3 rounded-lg" data-testid={`text-answer-${q.id}`}>
-                        {q.answer}
+                        {q.answer?.text || q.answer}
                       </p>
                       
-                      {q.aiInsights && (
+                      {(q.answer?.aiInsights || q.aiInsights) && (
                         <div className="bg-primary/5 p-4 rounded-lg space-y-3">
                           <h4 className="font-medium text-sm flex items-center gap-2">
                             <TrendingUp className="w-4 h-4" />
                             Key Takeaways
                           </h4>
                           <ul className="text-xs space-y-1">
-                            {q.aiInsights.keyTakeaways.map((takeaway, idx) => (
+                            {(q.answer?.aiInsights?.keyTakeaways || q.aiInsights?.keyTakeaways || []).map((takeaway: string, idx: number) => (
                               <li key={idx} className="flex items-center gap-2">
                                 <CheckCircle className="w-3 h-3 text-primary" />
                                 {takeaway}
@@ -412,7 +493,7 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
                           
                           <h4 className="font-medium text-sm pt-2">Action Steps</h4>
                           <ol className="text-xs space-y-1">
-                            {q.aiInsights.actionSteps.map((step, idx) => (
+                            {(q.answer?.aiInsights?.actionSteps || q.aiInsights?.actionSteps || []).map((step: string, idx: number) => (
                               <li key={idx} className="flex items-start gap-2">
                                 <span className="text-primary font-medium">{idx + 1}.</span>
                                 <span>{step}</span>
@@ -437,7 +518,8 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
                   )}
                 </CardContent>
               </Card>
-            ))}
+              ))
+            )}
           </TabsContent>
 
           {/* Library Tab */}
