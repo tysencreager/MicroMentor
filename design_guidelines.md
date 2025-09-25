@@ -7,21 +7,28 @@
 
 ### A. Color Palette
 **Primary Colors:**
-- Light Mode: 231 84% 45% (warm purple-blue)
-- Dark Mode: 231 74% 65% (lighter variant for contrast)
+- Deep Navy Blue: 210 73% 15% (#0A2342) - Primary brand color for buttons and headers
+- Light Mode: Deep Navy Blue as primary
+- Dark Mode: Dusty Teal (202 39% 55%) for better contrast
 
 **Background Colors:**
-- Light Mode: 220 15% 97% (soft off-white)
-- Dark Mode: 220 25% 8% (deep charcoal)
+- Light Mode: 60 44% 91% (Cream #F5F55DC) - Warm, welcoming base
+- Dark Mode: 210 73% 8% (Very Dark Navy) - Professional depth
 
-**Accent Colors:**
+**Supporting Colors:**
+- Charcoal Gray: 204 19% 26% (#36454F) - Text and borders
+- Soft Gold: 46 61% 52% (#D4AF37) - Accent highlights and CTAs
+- Dusty Teal: 202 39% 44% (#447B9B) - Secondary actions and links
+- Cream: 60 44% 91% (#F5F55DC) - Backgrounds and light surfaces
+
+**System Colors:**
 - Success: 142 76% 36% (encouraging green)
 - Warning: 38 92% 50% (gentle amber)
 - Error: 0 84% 60% (supportive red)
 
 **Gradients:**
-- Hero sections: Subtle gradient from primary to 270 70% 55%
-- Card backgrounds: Very subtle gradient overlays (5% opacity)
+- Hero sections: Subtle gradient from Deep Navy to Dusty Teal
+- Card backgrounds: Very subtle cream to gold overlays (3% opacity)
 
 ### B. Typography
 **Font Families:**

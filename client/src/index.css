@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE */
+/* LIGHT MODE - Updated to use sophisticated color palette */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -14,67 +14,97 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 220 15% 97%;
+  /* Cream background (#F5F55DC) */
+  --background: 60 44% 91%;
 
-  --foreground: 220 25% 15%;
+  /* Deep Navy Blue for text (#0A2342) */
+  --foreground: 210 73% 15%;
 
-  --border: 220 15% 88%;
+  /* Charcoal Gray for borders (#36454F lightened) */
+  --border: 204 19% 36%;
 
-  --card: 220 15% 95%;
+  /* Slightly darker cream for cards */
+  --card: 60 44% 88%;
 
-  --card-foreground: 220 25% 20%;
+  /* Deep Navy Blue for card text */
+  --card-foreground: 210 73% 18%;
 
-  --card-border: 220 15% 85%;
+  /* Charcoal Gray for card borders */
+  --card-border: 204 19% 32%;
 
-  --sidebar: 220 15% 93%;
+  /* Dusty Teal for sidebar (#447B9B lightened) */
+  --sidebar: 202 39% 50%;
 
-  --sidebar-foreground: 220 25% 20%;
+  /* Cream for sidebar text */
+  --sidebar-foreground: 60 44% 95%;
 
-  --sidebar-border: 220 15% 83%;
+  /* Dusty Teal border */
+  --sidebar-border: 202 39% 40%;
 
-  --sidebar-primary: 231 84% 45%;
+  /* Deep Navy Blue as primary (#0A2342) */
+  --sidebar-primary: 210 73% 15%;
 
-  --sidebar-primary-foreground: 231 84% 98%;
+  /* Cream for primary foreground */
+  --sidebar-primary-foreground: 60 44% 95%;
 
-  --sidebar-accent: 220 20% 88%;
+  /* Soft Gold for sidebar accent (#D4AF37) */
+  --sidebar-accent: 46 61% 52%;
 
-  --sidebar-accent-foreground: 220 25% 25%;
+  /* Deep Navy for accent foreground */
+  --sidebar-accent-foreground: 210 73% 15%;
 
-  --sidebar-ring: 231 84% 45%;
+  /* Deep Navy Blue for sidebar ring */
+  --sidebar-ring: 210 73% 15%;
 
-  --popover: 220 15% 91%;
+  /* Light cream for popover */
+  --popover: 60 44% 89%;
 
-  --popover-foreground: 220 25% 22%;
+  /* Deep Navy for popover text */
+  --popover-foreground: 210 73% 18%;
 
-  --popover-border: 220 15% 81%;
+  /* Charcoal border for popover */
+  --popover-border: 204 19% 36%;
 
-  --primary: 231 84% 45%;
+  /* Deep Navy Blue as primary color (#0A2342) */
+  --primary: 210 73% 15%;
 
-  --primary-foreground: 231 84% 98%;
+  /* Cream for primary foreground */
+  --primary-foreground: 60 44% 95%;
 
-  --secondary: 220 15% 89%;
+  /* Dusty Teal for secondary (#447B9B) */
+  --secondary: 202 39% 44%;
 
-  --secondary-foreground: 220 25% 25%;
+  /* Cream for secondary foreground */
+  --secondary-foreground: 60 44% 95%;
 
-  --muted: 220 18% 90%;
+  /* Light cream for muted areas */
+  --muted: 60 44% 86%;
 
-  --muted-foreground: 220 25% 35%;
+  /* Charcoal Gray for muted text */
+  --muted-foreground: 204 19% 30%;
 
-  --accent: 220 20% 92%;
+  /* Soft Gold for accent (#D4AF37) */
+  --accent: 46 61% 52%;
 
-  --accent-foreground: 220 25% 30%;
+  /* Deep Navy for accent foreground */
+  --accent-foreground: 210 73% 15%;
 
+  /* Keep destructive as warm red */
   --destructive: 0 84% 60%;
 
-  --destructive-foreground: 0 84% 98%;
+  /* Cream for destructive foreground */
+  --destructive-foreground: 60 44% 95%;
 
-  --input: 220 15% 75%;
-  --ring: 231 84% 45%;
-  --chart-1: 231 84% 32%;
-  --chart-2: 270 70% 42%;
-  --chart-3: 142 76% 28%;
-  --chart-4: 38 92% 40%;
-  --chart-5: 0 84% 50%;
+  /* Charcoal for input borders */
+  --input: 204 19% 40%;
+  /* Deep Navy for focus rings */
+  --ring: 210 73% 15%;
+  /* Chart colors using the new palette */
+  --chart-1: 210 73% 15%;  /* Deep Navy */
+  --chart-2: 202 39% 44%;  /* Dusty Teal */
+  --chart-3: 46 61% 52%;   /* Soft Gold */
+  --chart-4: 204 19% 26%;  /* Charcoal Gray */
+  --chart-5: 0 84% 50%;    /* Keep red for variety */
 
   --font-sans: Open Sans, sans-serif;
   --font-serif: Georgia, serif;
@@ -132,67 +162,97 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 220 25% 8%;
+  /* Very dark navy for dark mode background */
+  --background: 210 73% 8%;
 
-  --foreground: 220 15% 90%;
+  /* Light cream for dark mode text */
+  --foreground: 60 44% 88%;
 
-  --border: 220 25% 18%;
+  /* Charcoal for dark mode borders */
+  --border: 204 19% 20%;
 
-  --card: 220 25% 11%;
+  /* Slightly lighter navy for cards */
+  --card: 210 73% 12%;
 
-  --card-foreground: 220 15% 85%;
+  /* Light cream for card text */
+  --card-foreground: 60 44% 85%;
 
-  --card-border: 220 25% 21%;
+  /* Charcoal for card borders */
+  --card-border: 204 19% 24%;
 
-  --sidebar: 220 25% 6%;
+  /* Deep navy for sidebar */
+  --sidebar: 210 73% 6%;
 
-  --sidebar-foreground: 220 15% 85%;
+  /* Light cream for sidebar text */
+  --sidebar-foreground: 60 44% 85%;
 
-  --sidebar-border: 220 25% 16%;
+  /* Charcoal for sidebar borders */
+  --sidebar-border: 204 19% 16%;
 
-  --sidebar-primary: 231 74% 65%;
+  /* Dusty Teal for dark mode primary */
+  --sidebar-primary: 202 39% 55%;
 
-  --sidebar-primary-foreground: 231 74% 10%;
+  /* Deep navy for primary foreground */
+  --sidebar-primary-foreground: 210 73% 10%;
 
-  --sidebar-accent: 220 25% 14%;
+  /* Soft Gold for sidebar accent (darkened) */
+  --sidebar-accent: 46 61% 35%;
 
-  --sidebar-accent-foreground: 220 15% 80%;
+  /* Light cream for accent foreground */
+  --sidebar-accent-foreground: 60 44% 80%;
 
-  --sidebar-ring: 231 74% 65%;
+  /* Dusty Teal for sidebar ring */
+  --sidebar-ring: 202 39% 55%;
 
-  --popover: 220 25% 13%;
+  /* Dark navy for popover */
+  --popover: 210 73% 10%;
 
-  --popover-foreground: 220 15% 85%;
+  /* Light cream for popover text */
+  --popover-foreground: 60 44% 85%;
 
-  --popover-border: 220 25% 23%;
+  /* Charcoal for popover borders */
+  --popover-border: 204 19% 25%;
 
-  --primary: 231 74% 65%;
+  /* Dusty Teal for dark mode primary */
+  --primary: 202 39% 55%;
 
-  --primary-foreground: 231 74% 10%;
+  /* Deep navy for primary foreground */
+  --primary-foreground: 210 73% 8%;
 
-  --secondary: 220 25% 15%;
+  /* Charcoal for secondary */
+  --secondary: 204 19% 20%;
 
-  --secondary-foreground: 220 15% 80%;
+  /* Light cream for secondary foreground */
+  --secondary-foreground: 60 44% 80%;
 
-  --muted: 220 20% 12%;
+  /* Dark charcoal for muted */
+  --muted: 204 19% 15%;
 
-  --muted-foreground: 220 15% 65%;
+  /* Medium cream for muted text */
+  --muted-foreground: 60 44% 65%;
 
-  --accent: 220 20% 10%;
+  /* Soft Gold (darkened) for accent */
+  --accent: 46 61% 35%;
 
-  --accent-foreground: 220 15% 75%;
+  /* Light cream for accent foreground */
+  --accent-foreground: 60 44% 85%;
 
+  /* Keep destructive as warm red */
   --destructive: 0 84% 60%;
 
-  --destructive-foreground: 0 84% 10%;
+  /* Deep navy for destructive foreground */
+  --destructive-foreground: 210 73% 10%;
 
-  --input: 220 25% 25%;
-  --ring: 231 74% 65%;
-  --chart-1: 231 84% 75%;
-  --chart-2: 270 70% 78%;
-  --chart-3: 142 76% 65%;
-  --chart-4: 38 92% 70%;
-  --chart-5: 0 84% 75%;
+  /* Charcoal for inputs */
+  --input: 204 19% 25%;
+  /* Dusty Teal for focus rings */
+  --ring: 202 39% 55%;
+  /* Dark mode chart colors */
+  --chart-1: 202 39% 65%;  /* Lighter Dusty Teal */
+  --chart-2: 46 61% 65%;   /* Lighter Soft Gold */
+  --chart-3: 60 44% 75%;   /* Lighter Cream */
+  --chart-4: 204 19% 45%;  /* Lighter Charcoal */
+  --chart-5: 0 84% 75%;    /* Lighter red */
 
   --shadow-2xs: 0px 2px 0px 0px hsl(220 25% 5% / 0.10);
   --shadow-xs: 0px 2px 0px 0px hsl(220 25% 5% / 0.15);
