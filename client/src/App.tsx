@@ -75,6 +75,15 @@ function Router() {
 
   const userRole = getUserRole(user);
 
+  // At this point user is guaranteed to exist due to authentication check above
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Authentication error. Please try logging in again.</p>
+      </div>
+    );
+  }
+
   return (
     <Switch>
       <Route path="/mentor/apply">
