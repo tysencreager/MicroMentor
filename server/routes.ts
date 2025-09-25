@@ -6,7 +6,8 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertQuestionSchema, 
   insertAnswerSchema, 
-  insertMentorProfileSchema 
+  insertMentorProfileSchema,
+  insertMentorApplicationSchema
 } from "@shared/schema";
 
 // Helper to get AI insights for an answer
@@ -137,6 +138,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(profile);
     } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // Mentor application routes
+  app.post("/api/mentors/apply", isAuthenticated, async (req: any, res) => {
+    try {
+      // Check if user already has an application
+      const existingApplication = await storage.getMentorApplication(req.user.claims.sub);
+      if (existingApplication) {
+        return res.status(400).json({ error: "You have already submitted a mentor application" });
+      }
+      
+      const applicationData = insertMentorApplicationSchema.parse({
+        ...req.body,
+        userId: req.user.claims.sub
+      });
+      
+      const application = await storage.createMentorApplication(applicationData);
+      res.status(201).json(application);
+    } catch (error: any) {
+      console.error("Error creating mentor application:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+  
+  app.get("/api/mentors/application", isAuthenticated, async (req: any, res) => {
+    try {
+      const application = await storage.getMentorApplication(req.user.claims.sub);
+      res.json(application);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  app.patch("/api/mentors/application/:id/status", isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+      
+      // TODO: Add admin authorization check here
+      if (!['pending', 'under_review', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      
+      const application = await storage.updateMentorApplicationStatus(id, status, adminNotes);
+      res.json(application);
+    } catch (error: any) {
+      console.error("Error updating application status:", error);
       res.status(500).json({ error: error.message });
     }
   });

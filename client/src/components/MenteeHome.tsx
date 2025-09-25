@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { MessageSquare, Mic, MicOff, Send, BookOpen, TrendingUp, Clock, CheckCircle, Star, Heart, Users, Loader2 } from "lucide-react";
+import { MessageSquare, Mic, MicOff, Send, BookOpen, TrendingUp, Clock, CheckCircle, Star, Heart, Users, Loader2, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -194,6 +195,12 @@ export default function MenteeHome({ user, onLogout }: MenteeHomeProps) {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/mentor/apply">
+                <Button variant="outline" size="sm" data-testid="button-become-mentor">
+                  <UserCheck className="w-4 h-4 mr-2" />
+                  Become a Mentor
+                </Button>
+              </Link>
               <Avatar className="w-8 h-8">
                 <AvatarImage src={user.profileImageUrl} />
                 <AvatarFallback>

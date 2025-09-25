@@ -8,12 +8,15 @@ import {
   type InsertAnswer, 
   type MentorProfile, 
   type InsertMentorProfile,
+  type MentorApplication,
+  type InsertMentorApplication,
   type QuestionWithAnswer,
   type MentorWithProfile,
   users,
   questions,
   answers,
-  mentorProfiles
+  mentorProfiles,
+  mentorApplications
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, isNull } from "drizzle-orm";
@@ -44,6 +47,11 @@ export interface IStorage {
   createAnswer(answer: InsertAnswer): Promise<Answer>;
   updateAnswerInsights(answerId: string, insights: any): Promise<Answer>;
   getAnswersByMentor(mentorId: string): Promise<Answer[]>;
+  
+  // Mentor applications
+  getMentorApplication(userId: string): Promise<MentorApplication | undefined>;
+  createMentorApplication(application: InsertMentorApplication): Promise<MentorApplication>;
+  updateMentorApplicationStatus(id: string, status: string, adminNotes?: string): Promise<MentorApplication>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -215,6 +223,45 @@ export class DatabaseStorage implements IStorage {
       .where(eq(answers.mentorId, mentorId))
       .orderBy(desc(answers.createdAt));
     return results;
+  }
+  
+  // Mentor applications
+  async getMentorApplication(userId: string): Promise<MentorApplication | undefined> {
+    const [application] = await db
+      .select()
+      .from(mentorApplications)
+      .where(eq(mentorApplications.userId, userId));
+    return application || undefined;
+  }
+
+  async createMentorApplication(applicationData: InsertMentorApplication): Promise<MentorApplication> {
+    const [application] = await db
+      .insert(mentorApplications)
+      .values(applicationData)
+      .returning();
+    return application;
+  }
+
+  async updateMentorApplicationStatus(id: string, status: string, adminNotes?: string): Promise<MentorApplication> {
+    const updateData: any = {
+      status: status as any,
+      updatedAt: new Date(),
+    };
+    
+    if (adminNotes) {
+      updateData.adminNotes = adminNotes;
+    }
+    
+    if (status === 'approved' || status === 'rejected') {
+      updateData.reviewedAt = new Date();
+    }
+    
+    const [application] = await db
+      .update(mentorApplications)
+      .set(updateData)
+      .where(eq(mentorApplications.id, id))
+      .returning();
+    return application;
   }
 }
 

@@ -6,10 +6,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Landing from "@/components/Landing";
 import MenteeHome from "@/components/MenteeHome";
 import MentorHome from "@/components/MentorHome";
+import MentorApplication from "@/components/MentorApplication";
+import MentorVerificationDashboard from "@/components/MentorVerificationDashboard";
 import ThemeToggle from "@/components/ThemeToggle";
 import NotFound from "@/pages/not-found";
 
@@ -74,6 +77,12 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/mentor/apply">
+        <MentorApplication user={user} onLogout={handleLogout} />
+      </Route>
+      <Route path="/mentor/verification">
+        <MentorVerificationDashboard user={user} onLogout={handleLogout} />
+      </Route>
       <Route path="/">
         {userRole === 'mentor' ? (
           <MentorHome user={user} onLogout={handleLogout} />

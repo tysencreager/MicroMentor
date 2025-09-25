@@ -69,11 +69,61 @@ export const answers = pgTable("answers", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
+// Mentor applications table for verification process
+export const mentorApplications = pgTable("mentor_applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  status: text("status", { enum: ["pending", "under_review", "approved", "rejected"] }).notNull().default("pending"),
+  
+  // Professional Information
+  currentTitle: text("current_title").notNull(),
+  currentCompany: text("current_company").notNull(),
+  workEmail: varchar("work_email").notNull(),
+  linkedinProfile: varchar("linkedin_profile"),
+  yearsExperience: integer("years_experience").notNull(),
+  expertise: text("expertise").array().notNull(),
+  industries: text("industries").array().notNull(),
+  
+  // Background Information
+  education: jsonb("education").notNull(), // { degree, institution, year, field }
+  workHistory: jsonb("work_history").notNull(), // [{ title, company, years, description }]
+  certifications: jsonb("certifications"), // [{ name, issuer, year, credentialId }]
+  
+  // Mentoring Information
+  bio: text("bio").notNull(),
+  mentoringExperience: text("mentoring_experience"),
+  mentoringMotivation: text("mentoring_motivation").notNull(),
+  availabilityHours: integer("availability_hours").notNull(), // per week
+  preferredCategories: text("preferred_categories").array().notNull(),
+  
+  // References
+  references: jsonb("references").notNull(), // [{ name, title, company, email, relationship }]
+  
+  // Verification Status
+  workEmailVerified: boolean("work_email_verified").default(false),
+  linkedinVerified: boolean("linkedin_verified").default(false),
+  backgroundCheckStatus: text("background_check_status", { enum: ["pending", "in_progress", "completed", "failed"] }).default("pending"),
+  referencesContacted: boolean("references_contacted").default(false),
+  
+  // Admin Notes and Review
+  adminNotes: text("admin_notes"),
+  rejectionReason: text("rejection_reason"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   mentorProfile: one(mentorProfiles, {
     fields: [users.id],
     references: [mentorProfiles.userId],
+  }),
+  mentorApplication: one(mentorApplications, {
+    fields: [users.id],
+    references: [mentorApplications.userId],
   }),
   questionsAsked: many(questions),
   answersGiven: many(answers),
@@ -101,6 +151,17 @@ export const answersRelations = relations(answers, ({ one }) => ({
   }),
   mentor: one(users, {
     fields: [answers.mentorId],
+    references: [users.id],
+  }),
+}));
+
+export const mentorApplicationsRelations = relations(mentorApplications, ({ one }) => ({
+  user: one(users, {
+    fields: [mentorApplications.userId],
+    references: [users.id],
+  }),
+  reviewer: one(users, {
+    fields: [mentorApplications.reviewedBy],
     references: [users.id],
   }),
 }));
@@ -137,6 +198,29 @@ export const insertAnswerSchema = createInsertSchema(answers).omit({
   text: z.string().min(20, "Answer must be at least 20 characters"),
 });
 
+export const insertMentorApplicationSchema = createInsertSchema(mentorApplications).omit({
+  id: true,
+  status: true,
+  workEmailVerified: true,
+  linkedinVerified: true,
+  backgroundCheckStatus: true,
+  referencesContacted: true,
+  adminNotes: true,
+  rejectionReason: true,
+  reviewedBy: true,
+  reviewedAt: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  currentTitle: z.string().min(2, "Current title is required"),
+  currentCompany: z.string().min(2, "Current company is required"),
+  workEmail: z.string().email("Valid work email is required"),
+  yearsExperience: z.number().min(1, "Minimum 1 year of experience required"),
+  bio: z.string().min(50, "Bio must be at least 50 characters"),
+  mentoringMotivation: z.string().min(30, "Please explain your motivation"),
+  availabilityHours: z.number().min(1).max(20, "Availability must be between 1-20 hours per week"),
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpsertUser = typeof users.$inferInsert; // Required for Replit Auth
@@ -147,6 +231,8 @@ export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
 export type Question = typeof questions.$inferSelect;
 export type InsertAnswer = z.infer<typeof insertAnswerSchema>;
 export type Answer = typeof answers.$inferSelect;
+export type InsertMentorApplication = z.infer<typeof insertMentorApplicationSchema>;
+export type MentorApplication = typeof mentorApplications.$inferSelect;
 
 // Combined types for UI
 export type QuestionWithAnswer = Question & {
