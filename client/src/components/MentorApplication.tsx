@@ -33,7 +33,7 @@ interface User {
 
 interface MentorApplicationProps {
   user: User;
-  onComplete: () => void;
+  onLogout: () => void;
 }
 
 // Form validation schema
@@ -107,7 +107,7 @@ const categoryOptions = [
   "career", "confidence", "leadership", "technical", "personal"
 ];
 
-export default function MentorApplication({ user, onComplete }: MentorApplicationProps) {
+export default function MentorApplication({ user, onLogout }: MentorApplicationProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const { toast } = useToast();
   
