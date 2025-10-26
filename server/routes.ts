@@ -3,9 +3,10 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { 
-  insertQuestionSchema, 
-  insertAnswerSchema, 
+import { setupMockAuth, isMockAuthenticated } from "./mockAuth";
+import {
+  insertQuestionSchema,
+  insertAnswerSchema,
   insertMentorProfileSchema,
   insertMentorApplicationSchema
 } from "@shared/schema";
@@ -34,11 +35,18 @@ async function generateAIInsights(question: string, answer: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup authentication first
-  await setupAuth(app);
+  // Setup authentication first - use mock auth in development if enabled
+  const useMockAuth = process.env.USE_MOCK_AUTH === 'true';
+  const authMiddleware = useMockAuth ? isMockAuthenticated : isAuthenticated;
+
+  if (useMockAuth) {
+    await setupMockAuth(app);
+  } else {
+    await setupAuth(app);
+  }
 
   // Auth user route
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', authMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -49,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   // Question routes
-  app.post("/api/questions", isAuthenticated, async (req: any, res) => {
+  app.post("/api/questions", authMiddleware, async (req: any, res) => {
 
     try {
       const questionData = insertQuestionSchema.parse({
@@ -63,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/questions/mentee", isAuthenticated, async (req: any, res) => {
+  app.get("/api/questions/mentee", authMiddleware, async (req: any, res) => {
     try {
       const questions = await storage.getQuestionsByMentee(req.user.claims.sub);
       res.json(questions);
@@ -72,7 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/questions/pending", isAuthenticated, async (req: any, res) => {
+  app.get("/api/questions/pending", authMiddleware, async (req: any, res) => {
     try {
       const questions = await storage.getPendingQuestions();
       res.json(questions);
@@ -82,7 +90,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Answer routes
-  app.post("/api/answers", isAuthenticated, async (req: any, res) => {
+  app.post("/api/answers", authMiddleware, async (req: any, res) => {
     try {
       const answerData = insertAnswerSchema.parse({
         ...req.body,
@@ -117,7 +125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mentors/profile", isAuthenticated, async (req: any, res) => {
+  app.post("/api/mentors/profile", authMiddleware, async (req: any, res) => {
     try {
       const profileData = insertMentorProfileSchema.parse({
         ...req.body,
@@ -130,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/mentors/profile", isAuthenticated, async (req: any, res) => {
+  app.get("/api/mentors/profile", authMiddleware, async (req: any, res) => {
     try {
       const profile = await storage.getMentorProfile(req.user.claims.sub);
       if (!profile) {
@@ -141,21 +149,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error.message });
     }
   });
-  
+
   // Mentor application routes
-  app.post("/api/mentors/apply", isAuthenticated, async (req: any, res) => {
+  app.post("/api/mentors/apply", authMiddleware, async (req: any, res) => {
     try {
       // Check if user already has an application
       const existingApplication = await storage.getMentorApplication(req.user.claims.sub);
       if (existingApplication) {
         return res.status(400).json({ error: "You have already submitted a mentor application" });
       }
-      
+
       const applicationData = insertMentorApplicationSchema.parse({
         ...req.body,
         userId: req.user.claims.sub
       });
-      
+
       const application = await storage.createMentorApplication(applicationData);
       res.status(201).json(application);
     } catch (error: any) {
@@ -163,8 +171,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ error: error.message });
     }
   });
-  
-  app.get("/api/mentors/application", isAuthenticated, async (req: any, res) => {
+
+  app.get("/api/mentors/application", authMiddleware, async (req: any, res) => {
     try {
       const application = await storage.getMentorApplication(req.user.claims.sub);
       res.json(application);
@@ -172,8 +180,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error.message });
     }
   });
-  
-  app.patch("/api/mentors/application/:id/status", isAuthenticated, async (req: any, res) => {
+
+  app.patch("/api/mentors/application/:id/status", authMiddleware, async (req: any, res) => {
     try {
       const { id } = req.params;
       const { status, adminNotes } = req.body;
