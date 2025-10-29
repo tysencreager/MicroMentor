@@ -4,35 +4,13 @@ import { z } from "zod";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { setupMockAuth, isMockAuthenticated } from "./mockAuth";
+import { generateAIInsights } from "./aiService";
 import {
   insertQuestionSchema,
   insertAnswerSchema,
   insertMentorProfileSchema,
   insertMentorApplicationSchema
 } from "@shared/schema";
-
-// Helper to get AI insights for an answer
-async function generateAIInsights(question: string, answer: string) {
-  try {
-    // TODO: Replace with actual OpenAI integration
-    const mockInsights = {
-      keyTakeaways: [
-        "Focus on actionable steps",
-        "Build confidence through practice",
-        "Leverage your unique perspective"
-      ],
-      actionSteps: [
-        "Schedule a practice conversation this week",
-        "Research specific examples in your industry",
-        "Connect with 2-3 people who've faced similar challenges"
-      ]
-    };
-    return mockInsights;
-  } catch (error) {
-    console.error('Error generating AI insights:', error);
-    return null;
-  }
-}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication first - use mock auth in development if enabled
