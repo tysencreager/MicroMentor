@@ -50,6 +50,7 @@ export interface IStorage {
   
   // Mentor applications
   getMentorApplication(userId: string): Promise<MentorApplication | undefined>;
+  getAllMentorApplications(): Promise<MentorApplication[]>;
   createMentorApplication(application: InsertMentorApplication): Promise<MentorApplication>;
   updateMentorApplicationStatus(id: string, status: string, adminNotes?: string): Promise<MentorApplication>;
 }
@@ -232,6 +233,14 @@ export class DatabaseStorage implements IStorage {
       .from(mentorApplications)
       .where(eq(mentorApplications.userId, userId));
     return application || undefined;
+  }
+
+  async getAllMentorApplications(): Promise<MentorApplication[]> {
+    const applications = await db
+      .select()
+      .from(mentorApplications)
+      .orderBy(desc(mentorApplications.createdAt));
+    return applications;
   }
 
   async createMentorApplication(applicationData: InsertMentorApplication): Promise<MentorApplication> {

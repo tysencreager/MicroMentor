@@ -163,16 +163,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { status, adminNotes } = req.body;
-      
+
       // TODO: Add admin authorization check here
       if (!['pending', 'under_review', 'approved', 'rejected'].includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
-      
+
       const application = await storage.updateMentorApplicationStatus(id, status, adminNotes);
       res.json(application);
     } catch (error: any) {
       console.error("Error updating application status:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Admin routes - get all applications
+  app.get("/api/admin/applications", authMiddleware, async (req: any, res) => {
+    try {
+      // TODO: Add admin authorization check here
+      const applications = await storage.getAllMentorApplications();
+      res.json(applications);
+    } catch (error: any) {
+      console.error("Error fetching applications:", error);
       res.status(500).json({ error: error.message });
     }
   });
